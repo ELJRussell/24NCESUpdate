@@ -114,3 +114,67 @@ rm(schools,schools2,schools3,schools4,schools5,locale,Masterschool,
 districts <- read_csv("ccd_lea_052_2223_l_1a_083023.csv")
 districts2 <- read_csv("ccd_lea_059_2223_l_1a_083023.csv")
 districts3 <- read_csv("ccd_lea_029_2223_w_1a_083023.csv")
+districtlocale <- read_xlsx("EDGE_GEOCODE_PUBLICLEA_2223.xlsx")
+
+## Charter text and basic information on districts
+Masterdistrict <- districts3 %>%
+  select(SCHOOL_YEAR,LEA_NAME,LEAID,ST_LEAID,CHARTER_LEA,OPERATIONAL_SCHOOLS)
+
+## Staff information for districts
+Masterdistrict2 <- districts2 %>%
+  filter(STAFF=="Teachers") %>%
+  select(LEAID,STAFF_COUNT)
+
+## Student numbers for districts
+Masterdistrict3 <- districts %>%
+  filter((GRADE=="No Category Codes" | RACE_ETHNICITY=="No Category Codes") &
+           TOTAL_INDICATOR!="Education Unit Total") %>%
+  group_by(LEAID,GRADE,RACE_ETHNICITY) %>%
+  summarise(STUDENT_COUNT=sum(STUDENT_COUNT)) %>%
+  ungroup() %>%
+  mutate(GROUP=case_when(GRADE!="No Category Codes" ~ GRADE,
+                         RACE_ETHNICITY!="No Category Codes" ~ RACE_ETHNICITY,
+                         GRADE=="No Category Codes" & RACE_ETHNICITY=="No Category Codes" ~ "Total students",
+                         .default="check")) %>%
+  select(LEAID,GROUP,STUDENT_COUNT) %>%
+  pivot_wider(names_from="GROUP",values_from="STUDENT_COUNT", values_fill=0) %>%
+  relocate(LEAID,`Total students`, `Pre-Kindergarten`,Kindergarten, `Grade 1`,
+           `Grade 2`,`Grade 3`,`Grade 4`,`Grade 5`,`Grade 6`,
+           `Grade 7`,`Grade 8`,`Grade 9`,`Grade 10`,`Grade 11`,
+           `Grade 12`,`American Indian or Alaska Native`,
+           Asian, `Black or African American`,`Hispanic/Latino`,
+           `Native Hawaiian or Other Pacific Islander`,`Not Specified`,
+           `Two or more races`,White) %>%
+  select(LEAID:White)
+
+## Locale work
+Masterdistrict4 <- districtlocale %>%
+  select(LEAID,STREET,CITY,STATE,ZIP,LOCALE,LAT,LON)
+
+## Now to join everything together to make a district file
+
+District <- Masterdistrict %>%
+  left_join(Masterdistrict2) %>%
+  left_join(Masterdistrict3) %>%
+  left_join(Masterdistrict4) %>%
+  rename(`School Year`=SCHOOL_YEAR,`District ID`=LEAID,
+         `State Assessment ID`=ST_LEAID,`Total Teachers`=STAFF_COUNT,
+         `District Name`=LEA_NAME,`Charter Status`=CHARTER_LEA,
+         `Number Schools`=OPERATIONAL_SCHOOLS,
+         Street=STREET, City=CITY, State=STATE,`Zip Code`=ZIP,
+         locale=LOCALE,lat=LAT,lon=LON) %>%
+  relocate(`School Year`,`District Name`,`District ID`,`State Assessment ID`,
+           Street,City,State,`Zip Code`,locale,lat,lon,
+           `Total Teachers`,`Charter Status`,
+           `Total students`,`Pre-Kindergarten`,Kindergarten,
+           `Grade 1`,`Grade 2`,`Grade 3`,`Grade 4`,`Grade 5`,`Grade 6`,`Grade 7`,
+           `Grade 8`,`Grade 9`,`Grade 10`,`Grade 11`,`Grade 12`,
+           `American Indian or Alaska Native`,Asian,`Black or African American`,
+           `Hispanic/Latino`,`Native Hawaiian or Other Pacific Islander`,
+           `Not Specified`,`Two or more races`,White)
+
+rm(districts,districts2,districts3,districtlocale,Masterdistrict,
+   Masterdistrict2,Masterdistrict3,Masterdistrict4)
+
+## save everything
+save(Public,PublicGrade,District,file="24Masterfiles.RData")
