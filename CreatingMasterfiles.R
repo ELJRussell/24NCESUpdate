@@ -67,17 +67,25 @@ Gradespecific <- schools %>%
   pivot_wider(names_from="GROUP",values_from="STUDENT_COUNT", values_fill=0) %>%
   filter(GRADE!="Not Specified")
 
+## Locale work
+
+Masterschool5 <- locale %>%
+  select(NCESSCH,STREET,CITY,STATE,ZIP,LOCALE,LAT,LON)
+
 ## Now to join everything together to make 2 public school lists
 
 Public <- Masterschool %>%
   left_join(Masterschool2) %>%
   left_join(Masterschool3) %>%
   left_join(Masterschool4) %>%
+  left_join(Masterschool5) %>%
   rename(`School Year`=SCHOOL_YEAR,`School Name`=SCH_NAME,`District ID`=LEAID,
          `State Assessment ID`=ST_SCHID,`NCES School ID`=NCESSCH,`Total Teachers`=TEACHERS,
          `District Name`=LEA_NAME,`Charter Status`=CHARTER_TEXT,`Lowest Grade`=GSLO,
-         `Highest Grade`=GSHI,`School Level`=LEVEL) %>%
+         `Highest Grade`=GSHI,`School Level`=LEVEL, Street=STREET, City=CITY, State=STATE,`Zip Code`=ZIP,
+         locale=LOCALE,lat=LAT,lon=LON) %>%
   relocate(`School Year`,`School Name`,`NCES School ID`,`District Name`,`District ID`,`State Assessment ID`,
+           Street,City,State,`Zip Code`,locale,lat,lon,
            `Lowest Grade`,`Highest Grade`,`Total Teachers`,`Charter Status`,
            `School Level`,`Free and Reduced-price lunch`,
            `Direct Certification`,`Total students`,`Pre-Kindergarten`,Kindergarten,
@@ -97,3 +105,12 @@ PublicGrade <- Masterschool %>%
          `Highest Grade`=GSHI,`School Level`=LEVEL, Grade=GRADE) %>%
   select(`School Year`:`NCES School ID`,`District Name`,Grade:White) %>%
   relocate(`Total students`, .after=`Grade`) 
+
+
+rm(schools,schools2,schools3,schools4,schools5,locale,Masterschool,
+   Masterschool2,Masterschool3,Masterschool4,Masterschool5,Gradespecific)
+
+## District work
+districts <- read_csv("ccd_lea_052_2223_l_1a_083023.csv")
+districts2 <- read_csv("ccd_lea_059_2223_l_1a_083023.csv")
+districts3 <- read_csv("ccd_lea_029_2223_w_1a_083023.csv")
