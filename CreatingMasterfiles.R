@@ -1,6 +1,10 @@
 library(tidyverse)
 library(readxl)
 
+## Files pulled from following locations:
+## https://nces.ed.gov/ccd/files.asp - Public and District data
+## https://nces.ed.gov/ccd/elsi/tableGenerator.aspx - Private data
+
 schools <- read_csv("ccd_sch_052_2223_l_1a_083023.csv")
 schools2 <- read_csv("ccd_sch_033_2223_l_1a_083023.csv")
 schools3 <- read_csv("ccd_sch_029_2223_w_1a_083023.csv")
@@ -176,5 +180,41 @@ District <- Masterdistrict %>%
 rm(districts,districts2,districts3,districtlocale,Masterdistrict,
    Masterdistrict2,Masterdistrict3,Masterdistrict4)
 
+
+## Private information
+Private <- read_csv("Private.csv") %>%
+  mutate(`School Year`="2019-2020") %>%
+  rename(`School Name`=`Private School Name`,
+         `NCES School ID`=`School ID - NCES Assigned [Private School] Latest available year`,
+         Street=`Physical Address [Private School] 2019-20`,
+         City=`City [Private School] 2019-20`,
+         `Zip Code`=`ZIP [Private School] 2019-20`,
+         `Lowest Grade`=`Lowest Grade Taught [Private School] 2019-20`,
+         `Highest Grade`=`Highest Grade Taught [Private School] 2019-20`,
+         locale=`Locale [Private School] 2019-20`,
+         `Total Teachers`= `Full-Time Equivalent (FTE) Teachers [Private School] 2019-20`,
+         `Total students`= `Total Students (Ungraded & PK-12) [Private School] 2019-20`,
+         `Pre-Kindergarten`=`Prekindergarten Students [Private School] 2019-20`,
+         Kindergarten=`Kindergarten Students [Private School] 2019-20`,
+         `Grade 1`=`Grade 1 Students [Private School] 2019-20`,
+         `Grade 2`=`Grade 2 Students [Private School] 2019-20`,
+         `Grade 3`=`Grade 3 Students [Private School] 2019-20`,
+         `Grade 4`=`Grade 4 Students [Private School] 2019-20`,
+         `Grade 5`=`Grade 5 Students [Private School] 2019-20`,
+         `Grade 6`=`Grade 6 Students [Private School] 2019-20`,
+         `Grade 7`=`Grade 7 Students [Private School] 2019-20`,
+         `Grade 8`=`Grade 8 Students [Private School] 2019-20`,
+         `Grade 9`=`Grade 9 Students [Private School] 2019-20`,
+         `Grade 10`=`Grade 10 Students [Private School] 2019-20`,
+         `Grade 11`=`Grade 11 Students [Private School] 2019-20`,
+         `Grade 12`=`Grade 12 Students [Private School] 2019-20`,
+         `American Indian or Alaska Native`=`American Indian/Alaska Native Students [Private School] 2019-20`,
+         Asian=`Asian or Asian/Pacific Islander Students [Private School] 2019-20`,
+         `Black or African American`=`Black or African American Students [Private School] 2019-20`,
+         `Hispanic/Latino`=`Hispanic Students [Private School] 2019-20`,
+         `Native Hawaiian or Other Pacific Islander`=`Nat. Hawaiian or Other Pacific Isl. Students [Private School] 2019-20`,
+         `Two or more races`=`Two or More Races Students [Private School] 2019-20`)
+
+
 ## save everything
-save(Public,PublicGrade,District,file="24Masterfiles.RData")
+save(Public,PublicGrade,District,Private,file="24Masterfiles.RData")
