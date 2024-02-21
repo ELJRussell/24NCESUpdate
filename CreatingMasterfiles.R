@@ -177,6 +177,15 @@ District <- Masterdistrict %>%
            `Hispanic/Latino`,`Native Hawaiian or Other Pacific Islander`,
            `Not Specified`,`Two or more races`,White)
 
+DistrictFRL <- Public |> 
+  mutate(`Free and Reduced-price lunch` = case_when(is.na(`Free and Reduced-price lunch`) ~ `Direct Certification`,
+                                                    .default=`Free and Reduced-price lunch`)) |>
+  group_by(`District ID`) |> 
+  summarise(`Free and Reduced-price lunch`=round(sum(`Free and Reduced-price lunch`,na.rm=TRUE)/sum(`Total students`,na.rm=TRUE)*100,1))
+
+District <- District |> 
+  left_join(DistrictFRL, by=c("District ID"="District ID"))
+
 rm(districts,districts2,districts3,districtlocale,Masterdistrict,
    Masterdistrict2,Masterdistrict3,Masterdistrict4)
 
@@ -213,7 +222,8 @@ Private <- read_csv("Private.csv") %>%
          `Black or African American`=`Black or African American Students [Private School] 2019-20`,
          `Hispanic/Latino`=`Hispanic Students [Private School] 2019-20`,
          `Native Hawaiian or Other Pacific Islander`=`Nat. Hawaiian or Other Pacific Isl. Students [Private School] 2019-20`,
-         `Two or more races`=`Two or More Races Students [Private School] 2019-20`)
+         `Two or more races`=`Two or More Races Students [Private School] 2019-20`,
+         White=`White Students [Private School] 2019-20`)
 
 
 ## save everything
